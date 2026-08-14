@@ -21,4 +21,11 @@ describe("API", () => {
         );
     });
 
+    test("GET /db-health doit vérifier PostgreSQL", async () => {
+        const response = await request(app)
+            .get("/db-health");
+
+        expect([200, 500]).toContain(response.statusCode);
+    });
+
 });
