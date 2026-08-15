@@ -1,0 +1,5 @@
+
+# Trivy reports
+trivy-report.json
+trivy-report.txt
+trivy-critical.txt

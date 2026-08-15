@@ -28,18 +28,19 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 dir('app') {
-                   withSonarQubeEnv('sonarqube-local') {
-                       withEnv(["PATH+SONAR=${tool 'sonar-scanner'}/bin"]) {
-                           sh '''
-                               sonar-scanner \
-                                 -Dsonar.projectKey=DevOps-Lab-API \
-                                 -Dsonar.projectName="DevOps Lab API" 
-                           '''
-                         }
-                      }
-                  }
-             }
+                    withSonarQubeEnv('sonarqube-local') {
+                        withEnv(["PATH+SONAR=${tool 'sonar-scanner'}/bin"]) {
+                            sh '''
+                                sonar-scanner \
+                                  -Dsonar.projectKey=DevOps-Lab-API \
+                                  -Dsonar.projectName="DevOps Lab API"
+                            '''
+                        }
+                    }
+                }
+            }
         }
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -52,6 +53,29 @@ pipeline {
             steps {
                 dir('app') {
                     sh 'docker build -t devops-lab-api:jenkins .'
+                }
+            }
+        }
+
+        stage('Trivy Security Scan') {
+            steps {
+                sh '''
+                    trivy image \
+                      --format json \
+                      --output trivy-report.json \
+                      devops-lab-api:jenkins
+
+                    trivy image \
+                      --severity CRITICAL \
+                      --exit-code 1 \
+                      devops-lab-api:jenkins
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts artifacts: 'trivy-report.json',
+                                   allowEmptyArchive: true
                 }
             }
         }
@@ -74,8 +98,9 @@ pipeline {
     }
 
     post {
+
         success {
-            echo 'CI/CD + SonarQube terminé avec succès !'
+            echo 'CI/CD + SonarQube + Trivy terminé avec succès !'
         }
 
         failure {
