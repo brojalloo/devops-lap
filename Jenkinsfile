@@ -28,17 +28,18 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 dir('app') {
-                    withSonarQubeEnv('sonarqube-local') {
-                        sh '''
-                            sonar-scanner \
-                              -Dsonar.projectKey=devops-lab-api \
-                              -Dsonar.projectName="DevOps Lab API"
-                        '''
-                    }
-                }
-            }
+                   withSonarQubeEnv('sonarqube-local') {
+                       withEnv(["PATH+SONAR=${tool 'sonar-scanner'}/bin"]) {
+                           sh '''
+                               sonar-scanner \
+                                 -Dsonar.projectKey=devops-lab-api \
+                                 -Dsonar.projectName="DevOps Lab API"
+                           '''
+                         }
+                      }
+                  }
+             }
         }
-
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
