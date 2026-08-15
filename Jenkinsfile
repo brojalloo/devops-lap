@@ -32,15 +32,31 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                dir('app') {
+                    sh 'docker compose up -d --build'
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh 'sleep 5'
+                sh 'curl -f http://localhost:3000/health'
+                sh 'curl -f http://localhost:3000/db-health'
+            }
+        }
     }
 
     post {
         success {
-            echo 'Pipeline CI terminé avec succès !'
+            echo 'CI/CD terminé avec succès !'
         }
 
         failure {
-            echo 'Pipeline CI échoué.'
+            echo 'Pipeline CI/CD échoué.'
         }
 
         always {
