@@ -32,8 +32,8 @@ pipeline {
                        withEnv(["PATH+SONAR=${tool 'sonar-scanner'}/bin"]) {
                            sh '''
                                sonar-scanner \
-                                 -Dsonar.projectKey=devops-lab-api \
-                                 -Dsonar.projectName="DevOps Lab API"
+                                 -Dsonar.projectKey=DevOps-Lab-API \
+                                 -Dsonar.projectName="DevOps Lab API" 
                            '''
                          }
                       }
